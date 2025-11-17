@@ -1,36 +1,45 @@
-import requests
+import feedparser
 import json
 import os
+import requests
 
+RSS_URL = "https://api.msrc.microsoft.com/update-guide/rss"
 WEBHOOK = os.getenv("DISCORD_WEBHOOK")
-LAST_FILE = "last_cve.json"
+LAST_FILE = "last_msrc.json"
 
-NVD_API = "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=10"
-
-# Load previously seen CVEs
+# Load previously processed CVEs
 if os.path.exists(LAST_FILE):
     with open(LAST_FILE, "r") as f:
-        last_seen = set(json.load(f))
+        seen = set(json.load(f))
 else:
-    last_seen = set()
+    seen = set()
 
-response = requests.get(NVD_API).json()
+feed = feedparser.parse(RSS_URL)
 new_ids = []
 
-for item in response.get("vulnerabilities", []):
-    cve = item["cve"]
-    cve_id = cve["id"]
+for entry in feed.entries:
+    cve_id = entry.guid  # example: CVE-2025-13042
 
-    if cve_id not in last_seen:
+    if cve_id not in seen:
         new_ids.append(cve_id)
 
-        description = cve["descriptions"][0]["value"]
-        link = f"https://nvd.nist.gov/vuln/detail/{cve_id}"
+        title = entry.title
+        description = entry.description
+        link = entry.link
+        date = entry.published
 
-        message = f"**New CVE Detected:** {cve_id}\n{description}\n{link}"
+        message = (
+            f"🚨 **New Microsoft CVE**\n"
+            f"**{cve_id}**\n"
+            f"**Title:** {title}\n"
+            f"**Date:** {date}\n\n"
+            f"{description}\n\n"
+            f"🔗 {link}"
+        )
 
+        # Send to Discord webhook
         requests.post(WEBHOOK, json={"content": message})
 
-# Save updated CVE list
+# Save updated list
 with open(LAST_FILE, "w") as f:
-    json.dump(list(last_seen.union(new_ids)), f)
+    json.dump(list(seen.union(new_ids)), f)
