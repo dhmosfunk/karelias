@@ -1,4 +1,4 @@
-name: CVE Alerts to Discord
+name: karelias monitoring
 
 on:
   schedule:
@@ -19,9 +19,9 @@ jobs:
         python-version: "3.10"
 
     - name: Install dependencies
-      run: pip install requests feedparser 
+      run: pip install -r requirements.txt
 
-    - name: Run CVE fetcher
+    - name: Run karelias feed script
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-      run: python cve_fetcher.py
+      run: python karelias.py
