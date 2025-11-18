@@ -3,16 +3,16 @@ import json
 import os
 import requests
 
+from firestore_state import init_firestore, load_seen_ids, save_seen_ids
+
 RSS_URL = "https://api.msrc.microsoft.com/update-guide/rss"
 WEBHOOK = os.getenv("DISCORD_WEBHOOK")
-LAST_FILE = "last_msrc.json"
 
-# Load previously processed CVEs
-if os.path.exists(LAST_FILE):
-    with open(LAST_FILE, "r") as f:
-        seen = set(json.load(f))
-else:
-    seen = set()
+# Initialize Firestore
+db = init_firestore()
+
+# Load previously processed CVEs from Firestore
+seen = load_seen_ids(db)
 
 feed = feedparser.parse(RSS_URL)
 new_ids = []
@@ -40,6 +40,9 @@ for entry in feed.entries:
         # Send to Discord webhook
         requests.post(WEBHOOK, json={"content": message})
 
-# Save updated list
-with open(LAST_FILE, "w") as f:
-    json.dump(list(seen.union(new_ids)), f)
+# Save updated list to Firestore
+if new_ids:
+    save_seen_ids(db, seen.union(new_ids))
+    print(f"Saved {len(new_ids)} new IDs to Firestore.")
+else:
+    print("No new CVEs.")
