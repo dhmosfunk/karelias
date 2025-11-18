@@ -20,7 +20,8 @@ jobs:
       run: pip install -r requirements.txt firebase-admin
 
     - name: Create Firebase key file
-      run: echo "${{ secrets.FIREBASE_ADMIN_KEY }}" > firebase_key.json
+      run: |
+        printf "%s" "${{ secrets.FIREBASE_ADMIN_KEY }}" > firebase_key.json
 
     - name: Run karelias feed script
       env:
