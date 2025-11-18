@@ -21,7 +21,10 @@ jobs:
 
     - name: Create Firebase key file
       run: |
-        printf "%s" "${{ secrets.FIREBASE_ADMIN_KEY }}" > firebase_key.json
+        |
+        cat << 'EOF' > firebase_key.json
+        ${{ secrets.FIREBASE_ADMIN_KEY }}
+        EOF
 
     - name: Run karelias feed script
       env:
