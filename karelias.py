@@ -14,9 +14,6 @@ SOURCES = {
 
 db = init_firestore()
 
-def send_to_discord(message):
-    requests.post(WEBHOOK, json={"content": message})
-
 def process_msrc(entry):
     """Parse Microsoft MSRC feed entries."""
     cve_id = entry.guid
