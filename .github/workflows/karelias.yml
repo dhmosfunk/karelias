@@ -1,7 +1,7 @@
 name: karelias monitoring
 
 on:
-  workflow_dispatch:        
+  workflow_dispatch:
 
 jobs:
   cve-alerts:
@@ -17,9 +17,13 @@ jobs:
         python-version: "3.10"
 
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: pip install -r requirements.txt firebase-admin
+
+    - name: Create Firebase key file
+      run: echo "${{ secrets.FIREBASE_ADMIN_KEY }}" > firebase_key.json
 
     - name: Run karelias feed script
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        FIREBASE_KEY_FILE: firebase_key.json
       run: python karelias.py
