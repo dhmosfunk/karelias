@@ -1,5 +1,4 @@
-name: karelias monitoring
-
+name: karelias watchdog
 on:
   schedule:
     - cron: "0 * * * *"
@@ -33,7 +32,7 @@ jobs:
       run: |
         echo "${{ secrets.FIREBASE_ADMIN_KEY }}" | base64 --decode > firebase_key.json
         
-    - name: Run karelias feed script
+    - name: Run karelias watchdog
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         FIREBASE_KEY_FILE: firebase_key.json
