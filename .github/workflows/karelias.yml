@@ -20,12 +20,9 @@ jobs:
       run: pip install -r requirements.txt firebase-admin
 
     - name: Create Firebase key file
-  shell: bash
-  run: |
-    cat << 'EOF' > firebase_key.json
-${{ secrets.FIREBASE_ADMIN_KEY }}
-EOF
-
+      run: |
+        echo "${{ secrets.FIREBASE_ADMIN_KEY }}" | base64 --decode > firebase_key.json
+        
     - name: Run karelias feed script
       env:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
