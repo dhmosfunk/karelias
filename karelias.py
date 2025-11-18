@@ -4,6 +4,7 @@ import os
 import requests
 
 from firestore_state import init_firestore, load_seen_ids, save_seen_ids
+from discord import send_to_discord
 
 WEBHOOK = os.getenv("DISCORD_WEBHOOK")
 
