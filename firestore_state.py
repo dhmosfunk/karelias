@@ -8,13 +8,13 @@ def init_firestore():
     firebase_admin.initialize_app(cred)
     return firestore.client()
 
-def load_seen_ids(db):
-    doc = db.collection("msrc_monitor").document("state")
+def load_seen_ids(db, source):
+    doc = db.collection("cve_sources").document(source)
     snap = doc.get()
     if snap.exists:
         return set(snap.to_dict().get("seen", []))
     return set()
 
-def save_seen_ids(db, seen_ids):
-    doc = db.collection("msrc_monitor").document("state")
+def save_seen_ids(db, source, seen_ids):
+    doc = db.collection("cve_sources").document(source)
     doc.set({"seen": list(seen_ids)})
